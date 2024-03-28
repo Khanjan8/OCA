@@ -10,11 +10,20 @@ class user(models.Model):
     phoneno = models.BigIntegerField()
 
 
-class messages(models.Model):
+class message(models.Model):
     uid1 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="message_sender")
     uid2 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="message_reciever")
+    is_read = models.BooleanField(default=False)
     message = models.TextField()
 
+    def send_message(from_user,to_user,body):
+        sender_message = message(
+            uid1 = from_user,
+            uid2 = to_user,
+            message = body,
+            is_read = False
+        )
+        sender_message.save()
 
 class images(models.Model):
     uid1 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="image_sender")
@@ -52,6 +61,3 @@ class admin2(models.Model):
     username = models.CharField(max_length=30)
     password = models.CharField(max_length=30)
 
-
-    def set_password(self, raw_password):
-        self.password = make_password(raw_password)

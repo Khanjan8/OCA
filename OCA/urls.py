@@ -20,6 +20,6 @@ from chatting import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.login, name='login'),
-    path('verify_otp/', views.verify_otp, name='verify_otp'),
+    path('', include('chatting.urls')),
+    path('logout/',views.logout_view,name='logout')
 ]

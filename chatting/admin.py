@@ -1,8 +1,8 @@
 from django.contrib import admin
-from chatting.models import user,messages,images,report,request,pin,block,feedback,admin2
+from chatting.models import user,message,images,report,request,pin,block,feedback,admin2
 
 admin.site.register(user)
-admin.site.register(messages)
+admin.site.register(message)
 admin.site.register(images)
 admin.site.register(report)
 admin.site.register(request)

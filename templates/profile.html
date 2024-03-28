@@ -1,78 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Profile</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <style>
-    .profile-container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .profile-picture {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    .file-input {
-      display: none;
-    }
-    .custom-file-upload {
-      border: 1px solid #ccc;
-      display: inline-block;
-      padding: 6px 12px;
-      cursor: pointer;
-    }
-  </style>
+        <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+    <style>
+        body{margin-top:20px;}
+        .avatar{
+            width:200px;
+            height:200px;
+        }
+    </style>
 </head>
+
 <body>
-  <div class="container profile-container">
-    <h1>User Profile</h1>
-    <form>
-      <div class="row">
-        <div class="col-md-4">
-          <div class="form-group">
-            <label for="profile-picture">Profile Picture:</label>
-            <img id="preview" src="placeholder.jpg" alt="Profile Picture" class="profile-picture">
-            <label for="file-upload" class="custom-file-upload btn btn-primary">
-              Choose File
-            </label>
-            <input id="file-upload" class="file-input" type="file" onchange="previewImage(event)">
+    <div class="container bootstrap snippets bootdey">
+        <h1 class="text-primary">Edit Profile</h1>
+          <hr>
+        <div class="row">
+          <!-- left column -->
+          <div class="col-md-3">
+            <div class="text-center">
+              <img src="https://bootdey.com/img/Content/avatar/avatar7.png" class="avatar img-circle img-thumbnail" alt="avatar">
+              <h6>Upload a different photo...</h6>
+              <input type="file" class="form-control">
+            </div>
           </div>
-        </div>
-        <div class="col-md-8">
-          <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" class="form-control" id="username" placeholder="Enter username">
+          
+          <!-- edit form column -->
+          <div class="col-md-9 personal-info">
+            <div class="alert alert-info alert-dismissable">
+              <a href="login.html" style="font-size: 17px;">Log Out</a>
+            </div>
+            
+            <form class="form-horizontal" role="form">
+              <div class="form-group">
+                <label class="col-lg-3 control-label">Username :</label>
+                <div class="col-lg-8">
+                  <input class="form-control" type="text" placeholder="Name">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-lg-3 control-label">About :</label>
+                <div class="col-lg-8">
+                  <input class="form-control" type="text" placeholder="Available">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-lg-3 control-label">Phone Number :</label>
+                <div class="col-lg-8">
+                  <input class="form-control" type="number" placeholder="+91">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-lg-3 control-label">FeedBack :</label>
+                <div class="col-lg-8">
+                  <textarea class="form-control" rows="5" placeholder="Share some thughts here ..."></textarea>
+                </div>
+              </div>
+              <div class="row gutters">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                    <div class="text-right">
+                        <button type="button" id="submit" name="submit" class="btn btn-secondary">Cancel</button>
+                        <button type="button" id="submit" name="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </div>
+              
+            </form>
           </div>
-          <div class="form-group">
-            <label for="about">About:</label>
-            <textarea class="form-control" id="about" rows="3" placeholder="Enter something about yourself"></textarea>
-          </div>
-          <div class="form-group">
-            <label for="phone">Phone No:</label>
-            <input type="tel" class="form-control" id="phone" placeholder="Enter phone number">
-          </div>
-          <div class="form-group">
-            <label for="feedback">Feedback:</label>
-            <textarea class="form-control" id="feedback" rows="3" placeholder="Enter your feedback"></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
       </div>
-    </form>
-  </div>
-  <script>
-    function previewImage(event) {
-      var reader = new FileReader();
-      reader.onload = function(){
-        var output = document.getElementById('preview');
-        output.src = reader.result;
-      };
-      reader.readAsDataURL(event.target.files[0]);
-    }
-  </script>
+    </div>
+    <hr>
 </body>
 </html>
