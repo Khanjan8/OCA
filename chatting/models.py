@@ -16,15 +16,6 @@ class message(models.Model):
     is_read = models.BooleanField(default=False)
     message = models.TextField()
 
-    def send_message(from_user,to_user,body):
-        sender_message = message(
-            uid1 = from_user,
-            uid2 = to_user,
-            message = body,
-            is_read = False
-        )
-        sender_message.save()
-
 class images(models.Model):
     uid1 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="image_sender")
     uid2 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="image_reciever")

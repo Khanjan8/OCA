@@ -13,12 +13,19 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
+
+        #messages{
+            width: 829px;
+            height: 510px; /* Set the fixed height */
+            overflow-y: auto;
+        }
+
         body{
-            background-color: #f4f7f6;
+            background-color: #f4f7f7;
             margin-top:20px;
         }
         .card {
-            background: #fff;
+            background: #e4edee;
             transition: .5s;
             border: 0;
             margin-bottom: 30px;
@@ -61,7 +68,7 @@
 
         .people-list .chat-list li.active {
             background: #efefef
-        }
+        }s
 
         .people-list .chat-list li .name {
             font-size: 15px
@@ -83,13 +90,13 @@
         }
 
         .people-list .status {
-            color: #999;
+            color: #878484;
             font-size: 13px
         }
 
         .chat .chat-header {
             padding: 15px 20px;
-            border-bottom: 2px solid #f4f7f6
+            border-bottom: 2px solid #e4edee(242, 237, 237)
         }
 
         .chat .chat-header img {
@@ -104,7 +111,7 @@
         }
 
         .chat .chat-history {
-            padding: 20px;
+            padding: 18px;
             border-bottom: 2px solid #fff
         }
 
@@ -138,7 +145,7 @@
         .chat .chat-history .message {
             color: #444;
             padding: 18px 20px;
-            line-height: 26px;
+            line-height: 10px;
             font-size: 16px;
             border-radius: 7px;
             display: inline-block;
@@ -278,19 +285,22 @@
             <div class="col-lg-12">
                 <div class="card chat-app">
                     <div id="plist" class="people-list">
+
+
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-search"></i></span>
                             </div>
                             <input type="text" class="form-control" placeholder="Search...">
                         </div>
-                        <ul class="list-unstyled chat-list mt-2 mb-0">
+
 
                         <!-- Old/New Conversation -->
+                        <ul class="list-unstyled chat-list mt-2 mb-0">
                         {% for obj in userlist %}
                                 <li class="clearfix">
                                     <img src="{{obj.pphoto.url}}" alt="avatar">
-                            
+                                    
                                     <div class="about">
                                         <div class="name" data-user-id="{{ profile.uid }}" data-user2-id="{{ obj.uid }}" data-name="{{ obj.uname }}" data-photo="{{ obj.pphoto.url }}">{{obj.uname}}</div>
                                         <div class="status"> <i class="fa fa-circle offline"></i> left 7 mins ago </div>                                            
@@ -306,7 +316,7 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <a id="logoutLink" data-toggle="modal" data-target="#view_info">
-                                        <img id="userphoto" src="" alt="avatar">
+                                        <img id="userphoto" src="" alt="">
                                     </a>
                                     <div class="chat-about">
                                         <h6 id="username" class="m-b-0"></h6>
@@ -324,7 +334,7 @@
                         </div>
 
                         <!-- chats -->
-                        <div class="chat-history">
+                        <div class="chat-history" id="messages">
                             <ul class="m-b-0" id="messageList">
                             </ul>
                         </div>
@@ -333,9 +343,9 @@
                         <div class="chat-message clearfix">
                             <div class="input-group mb-0">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-send"></i></span>
+                                    <span name="submit_msg" id="submit_msg" class="input-group-text" data-user-id="{{ profile.uid }}"><i class="fa fa-send"></i></span>
                                 </div>
-                                <input type="text" class="form-control" placeholder="Enter text here...">                                    
+                                <input type="text" id="msg" name="msg" class="form-control" placeholder="Enter text here...">                                    
                             </div>
                         </div>
                     </div>
@@ -354,7 +364,9 @@
                 nameLinks[i].addEventListener("click", function() {
                     var name = this.getAttribute("data-name");
                     var photo = this.getAttribute("data-photo");
+                    var user2Id = this.getAttribute("data-user2-id");
                     document.getElementById("username").textContent = name;
+                    document.getElementById("username").setAttribute("reciever",user2Id)
                     document.getElementById("userphoto").src = photo;
                 });
             }
@@ -384,15 +396,58 @@
         });
 
 
-        // document.addEventListener("DOMmsgLoaded", function() {
-        //     var msgLinks = document.getElementsByClassName("input-group-text");
-        //         nameLinks[i].addEventListener("click", function() {
-        //             var name = this.getAttribute("data-name");
-        //             var photo = this.getAttribute("data-photo");
-        //             document.getElementById("username").textContent = name;
-        //             document.getElementById("userphoto").src = photo;
-        //         });
-        // });
+        $(document).ready(function() {
+            // Event listener for user links
+            $(".input-group-text").click(function(e) {
+                e.preventDefault();
+                var userId = $(this).data('user-id');
+                var user2Id = document.getElementById("username").getAttribute("reciever");
+                var messageText = $('#msg').val();
+                var csrfToken = getCookie('csrftoken');
+                document.getElementById("msg").value = "";
+                $.ajax({
+                    url: "/save-messages/save/",
+                    type: "POST",
+                    data:{
+                        'text':messageText,
+                        'sender':userId,
+                        'reciever':user2Id
+                    },
+                    headers: {
+                        'X-CSRFToken': csrfToken // Include CSRF token in the request headers
+                    },
+                    success: function(response) {
+                                if(response.success){
+                                    var divElements = document.querySelectorAll('.name');
+                                    divElements.forEach(function(element) {
+                                        if (element.getAttribute("data-user2-id") == user2Id || element.getAttribute("data-user2-id") == userId) {
+                                            element.click();
+                                        }
+                                    });
+                                }
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ": " + xhr.responseText);
+                    }
+                });
+            });
+        });
+
+        // Function to get CSRF token from cookie
+        function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+        }
     </script>
 </body>
 </html>

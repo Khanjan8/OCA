@@ -62,35 +62,39 @@ def verify_otp(request):
         otp_entered = request.POST.get('otp', '')
         otp_sent = request.session.get('otp', '')
         if otp_entered == otp_sent:
-            mobile_number = request.session.get('mobile_number', '')
-            obj_exists = user.objects.filter(phoneno=mobile_number).exists()
-
-            if obj_exists :
-                profile = get_object_or_404(user,phoneno=mobile_number)
-            else :
-                profile = user()
-                profile.phoneno = mobile_number
-                profile.save()
-
-            msg1 = message.objects.filter(uid1=profile.uid)
-            msg2 = message.objects.filter(uid2=profile.uid)
-            userlist = []
-
-            for raw in msg1 :
-                u = user.objects.filter(uid=raw.uid2.uid).first()
-                userlist.append(u)
-
-            for raw in msg2 :
-                if not any(u.uid==raw.uid1.uid for u in userlist):
-                    u = user.objects.filter(uid=raw.uid1.uid).first()
-                    userlist.append(u)
-
-            return render(request,'interface.html',{'profile' : profile , 'userlist' : userlist})
+            return redirect('set_profile_users')
         else:
             messages.error(request, "Invalid OTP. Please try again.")
     mobile_number = request.session.get('mobile_number', '')
     return render(request, 'login.html',{'mobile_number': mobile_number})
 
+
+def set_profile_users(request):
+    mobile_number = request.session.get('mobile_number', '')
+    obj_exists = user.objects.filter(phoneno=mobile_number).exists()
+
+    if obj_exists :
+        profile = get_object_or_404(user,phoneno=mobile_number)
+    else :
+        profile = user()
+        profile.phoneno = mobile_number
+        profile.save()
+
+    msg1 = message.objects.filter(uid1=profile.uid)
+    msg2 = message.objects.filter(uid2=profile.uid)
+    userlist = []
+
+    for raw in msg1 :
+        if not any(u.uid==raw.uid2.uid for u in userlist):
+            u = user.objects.filter(uid=raw.uid2.uid).first()
+            userlist.append(u)
+
+    for raw in msg2 :
+        if not any(u.uid==raw.uid1.uid for u in userlist):
+            u = user.objects.filter(uid=raw.uid1.uid).first()
+            userlist.append(u)
+
+    return render(request,'interface.html',{'profile' : profile , 'userlist' : userlist})
 
 # For verify admin
 def verify_admin(request):
@@ -119,6 +123,22 @@ def logout_view(request):
 def get_messages(request, user_id , user2_id):
     messages = message.objects.filter(    # Fetch messages associated with the user
         (Q(uid1=user_id) & Q(uid2=user2_id)) | (Q(uid2=user_id) & Q(uid1=user2_id))
-     ) 
+     ).order_by('pk')
     message_list = [{'content': message.message} for message in messages]
     return JsonResponse({'messages': message_list})
+
+
+# for saving new messages
+def save_messages(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('sender')
+        user2_id = request.POST.get('reciever')
+        message_text = request.POST.get('text')
+
+        obj1 = user.objects.filter(pk=user_id).first()
+        obj2 = user.objects.filter(pk=user2_id).first()
+        
+        msg = message.objects.create(uid1=obj1,uid2=obj2,message=message_text)
+    return JsonResponse({'success': True})
+    
+

@@ -25,6 +25,7 @@ urlpatterns = [
     path('', include('chatting.urls')),
     path('logout/',views.logout_view,name='logout'),
     path('get-messages/<int:user_id>/<int:user2_id>/',views.get_messages,name='get_messages'),
+    path('save-messages/save/',views.save_messages,name='save_messages'),
 ]
 
 
