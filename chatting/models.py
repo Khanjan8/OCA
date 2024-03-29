@@ -4,10 +4,10 @@ from django.contrib.auth.hashers import make_password
 
 class user(models.Model):
     uid = models.IntegerField(primary_key = True,auto_created = True)
-    uname = models.CharField(max_length=30)
+    uname = models.CharField(max_length=30,default="Default")
     about = models.CharField(max_length=30,default="available")
-    pphoto = models.BinaryField()
-    phoneno = models.BigIntegerField()
+    pphoto = models.ImageField(default='images/defaultprofile.jpg')
+    phoneno = models.CharField(max_length=13)
 
 
 class message(models.Model):

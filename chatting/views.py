@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from twilio.rest import Client
 from .forms import LoginForm,Adminlogin
-from .models import admin2
+from .models import admin2,message,user
 import random
+from django.db.models import Q
 
 # 'ACd0f1a220b1e06eb087310439f2c0cd66'
 TWILIO_ACCOUNT_SID = 'ACbe29c08c22bcde0bb83d9132389edf27'
@@ -60,7 +62,30 @@ def verify_otp(request):
         otp_entered = request.POST.get('otp', '')
         otp_sent = request.session.get('otp', '')
         if otp_entered == otp_sent:
-            return render(request,'interface.html')
+            mobile_number = request.session.get('mobile_number', '')
+            obj_exists = user.objects.filter(phoneno=mobile_number).exists()
+
+            if obj_exists :
+                profile = get_object_or_404(user,phoneno=mobile_number)
+            else :
+                profile = user()
+                profile.phoneno = mobile_number
+                profile.save()
+
+            msg1 = message.objects.filter(uid1=profile.uid)
+            msg2 = message.objects.filter(uid2=profile.uid)
+            userlist = []
+
+            for raw in msg1 :
+                u = user.objects.filter(uid=raw.uid2.uid).first()
+                userlist.append(u)
+
+            for raw in msg2 :
+                if not any(u.uid==raw.uid1.uid for u in userlist):
+                    u = user.objects.filter(uid=raw.uid1.uid).first()
+                    userlist.append(u)
+
+            return render(request,'interface.html',{'profile' : profile , 'userlist' : userlist})
         else:
             messages.error(request, "Invalid OTP. Please try again.")
     mobile_number = request.session.get('mobile_number', '')
@@ -88,3 +113,12 @@ def verify_admin(request):
 def logout_view(request):
     # log out actions
     return redirect('login')
+
+
+# for get messages
+def get_messages(request, user_id , user2_id):
+    messages = message.objects.filter(    # Fetch messages associated with the user
+        (Q(uid1=user_id) & Q(uid2=user2_id)) | (Q(uid2=user_id) & Q(uid1=user2_id))
+     ) 
+    message_list = [{'content': message.message} for message in messages]
+    return JsonResponse({'messages': message_list})

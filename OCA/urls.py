@@ -17,9 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from chatting import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('chatting.urls')),
-    path('logout/',views.logout_view,name='logout')
+    path('logout/',views.logout_view,name='logout'),
+    path('get-messages/<int:user_id>/<int:user2_id>/',views.get_messages,name='get_messages'),
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
