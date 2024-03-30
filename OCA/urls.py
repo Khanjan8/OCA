@@ -1,7 +1,7 @@
 """
 URL configuration for OCA project.
 
-The `urlpatterns` list routes URLs to views. For more information please see:
+The urlpatterns list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.0/topics/http/urls/
 Examples:
 Function views
@@ -27,4 +27,5 @@ urlpatterns = [
     path('get-messages/<int:user_id>/<int:user2_id>/',views.get_messages,name='get_messages'),
     path('save-messages/save/',views.save_messages,name='save_messages'),
     path('get-users/',views.get_users,name='get_users'),
+    path('search-user/',views.search_user,name='search_user'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

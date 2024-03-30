@@ -1,3 +1,4 @@
+import json
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
@@ -160,3 +161,16 @@ def get_users(request):
     return JsonResponse({'users': user_list})
 
     
+# for search user
+def search_user(request):
+    name = request.POST.get('uname')
+    list_json = request.POST.get('userlist')
+    list = json.loads(list_json)
+    users = user.objects.filter(uname=name).exclude(uid__in=list)
+
+    users_data = []
+    if users.exists() :
+        users_data = [{'uid2':user.uid, 'photo':user.pphoto.url , 'name': user.uname} for user in users]
+    else :
+        users_data = [{'validity':False}]
+    return JsonResponse({'users': users_data})
