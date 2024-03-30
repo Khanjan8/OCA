@@ -6,7 +6,7 @@ class user(models.Model):
     uid = models.IntegerField(primary_key = True,auto_created = True)
     uname = models.CharField(max_length=30,default="Default")
     about = models.CharField(max_length=30,default="available")
-    pphoto = models.ImageField(default='images/defaultprofile.jpg')
+    pphoto = models.ImageField(default='defaultprofile.jpg')
     phoneno = models.CharField(max_length=13)
 
 

@@ -27,7 +27,7 @@ def login(request):
             if form.is_valid():
                 mobile_number = form.cleaned_data['mobile_number']
                 request.session['mobile_number'] = mobile_number     # Store mobile number in session
-                otp = send_otp(mobile_number)
+                otp = "1234"               # send_otp(mobile_number)
                 request.session['otp'] = otp  # Store OTP in session
                 return redirect('verify_otp')
         else:
@@ -80,27 +80,28 @@ def set_profile_users(request):
         profile.phoneno = mobile_number
         profile.save()
 
-    msg1 = message.objects.filter(uid1=profile.uid)
-    msg2 = message.objects.filter(uid2=profile.uid)
-    userlist = []
+    # msg1 = message.objects.filter(uid1=profile.uid)
+    # msg2 = message.objects.filter(uid2=profile.uid)
+    # userlist = []
 
-    for raw in msg1 :
-        if not any(u.uid==raw.uid2.uid for u in userlist):
-            u = user.objects.filter(uid=raw.uid2.uid).first()
-            userlist.append(u)
+    # for raw in msg1 :
+    #     if not any(u.uid==raw.uid2.uid for u in userlist):
+    #         u = user.objects.filter(uid=raw.uid2.uid).first()
+    #         userlist.append(u)
 
-    for raw in msg2 :
-        if not any(u.uid==raw.uid1.uid for u in userlist):
-            u = user.objects.filter(uid=raw.uid1.uid).first()
-            userlist.append(u)
+    # for raw in msg2 :
+    #     if not any(u.uid==raw.uid1.uid for u in userlist):
+    #         u = user.objects.filter(uid=raw.uid1.uid).first()
+    #         userlist.append(u)
 
-    return render(request,'interface.html',{'profile' : profile , 'userlist' : userlist})
+    return render(request,'interface.html',{'profile' : profile })
+    # return render(request,'interface.html',{'profile' : profile , 'userlist' : userlist})
 
 # For verify admin
 def verify_admin(request):
     all_rows = admin2.objects.all()
-    uname = request.POST.get('username','')
-    psw = request.POST.get('password','')
+    uname = request.session.get('username','')
+    psw = request.session.get('password', '')
 
     for row in all_rows:
         if row.username == uname and row.password == psw :
@@ -108,9 +109,7 @@ def verify_admin(request):
         else:
             messages.error(request,"Invalid Username Or Password. Please try again.")
 
-    un = request.session.get('username','')
-    ps = request.session.get('password', '')
-    return render(request, 'login.html',{'username': un,'password': ps})
+    return render(request, 'login.html',{'username': uname,'password': psw})
 
 
 # For logout activities
@@ -130,15 +129,34 @@ def get_messages(request, user_id , user2_id):
 
 # for saving new messages
 def save_messages(request):
-    if request.method == 'POST':
-        user_id = request.POST.get('sender')
-        user2_id = request.POST.get('reciever')
-        message_text = request.POST.get('text')
+    user_id = request.POST.get('sender')
+    user2_id = request.POST.get('reciever')
+    message_text = request.POST.get('text')
 
-        obj1 = user.objects.filter(pk=user_id).first()
-        obj2 = user.objects.filter(pk=user2_id).first()
-        
-        msg = message.objects.create(uid1=obj1,uid2=obj2,message=message_text)
-    return JsonResponse({'success': True})
+    obj1 = user.objects.filter(pk=user_id).first()
+    obj2 = user.objects.filter(pk=user2_id).first()
     
+    msg = message.objects.create(uid1=obj1,uid2=obj2,message=message_text)
+    return JsonResponse({'success': True})
 
+
+# for get users 
+def get_users(request):
+    user_id = request.POST.get('user')
+    msg1 = message.objects.filter(uid1=user_id)
+    msg2 = message.objects.filter(uid2=user_id)
+    userlist = []
+    for raw in msg1 :
+        if not any(u.uid==raw.uid2.uid for u in userlist):
+            u = user.objects.filter(uid=raw.uid2.uid).first()
+            userlist.append(u)
+
+    for raw in msg2 :
+        if not any(u.uid==raw.uid1.uid for u in userlist):
+            u = user.objects.filter(uid=raw.uid1.uid).first()
+            userlist.append(u)
+
+    user_list = [{'uid1': user_id,'uid2': user.uid,'name': user.uname,'photo': user.pphoto.url} for user in userlist]
+    return JsonResponse({'users': user_list})
+
+    

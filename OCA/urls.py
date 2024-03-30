@@ -26,8 +26,5 @@ urlpatterns = [
     path('logout/',views.logout_view,name='logout'),
     path('get-messages/<int:user_id>/<int:user2_id>/',views.get_messages,name='get_messages'),
     path('save-messages/save/',views.save_messages,name='save_messages'),
-]
-
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('get-users/',views.get_users,name='get_users'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

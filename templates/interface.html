@@ -294,19 +294,10 @@
                             <input type="text" class="form-control" placeholder="Search...">
                         </div>
 
-
+                        {{ profile.uname }}
                         <!-- Old/New Conversation -->
-                        <ul class="list-unstyled chat-list mt-2 mb-0">
-                        {% for obj in userlist %}
-                                <li class="clearfix">
-                                    <img src="{{obj.pphoto.url}}" alt="avatar">
-                                    
-                                    <div class="about">
-                                        <div class="name" data-user-id="{{ profile.uid }}" data-user2-id="{{ obj.uid }}" data-name="{{ obj.uname }}" data-photo="{{ obj.pphoto.url }}">{{obj.uname}}</div>
-                                        <div class="status"> <i class="fa fa-circle offline"></i> left 7 mins ago </div>                                            
-                                    </div>
-                                </li>                                
-                        {% endfor %}
+                        <ul class="list-unstyled chat-list mt-2 mb-0" id="allusers" data-user-id="{{ profile.uid }}">
+                                                               
                         </ul>
                     </div>
 
@@ -316,7 +307,7 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <a id="logoutLink" data-toggle="modal" data-target="#view_info">
-                                        <img id="userphoto" src="" alt="">
+                                        <img id="userphoto" src="" alt="yaa">
                                     </a>
                                     <div class="chat-about">
                                         <h6 id="username" class="m-b-0"></h6>
@@ -355,30 +346,62 @@
     </div>
 
     <script>
+
+        // for adding left old/new conversation set up
+        function fetchusers(){
+            var userId = document.getElementById("allusers").getAttribute('data-user-id');
+            var csrfToken = getCookie('csrftoken');
+            $.ajax({
+                url: "/get-users/",
+                type: "POST",
+                data:{
+                    'user':userId,
+                },
+                headers: {
+                    'X-CSRFToken': csrfToken // Include CSRF token in the request headers
+                },
+                success: function(response) {
+                    $("#allusers").empty(); // Clear previous messages
+                        response.users.forEach(function(user) {
+                            $("#allusers").append(`<li class="clearfix"><img src="${user.photo}" alt="avatar"><div class="about"><div class="name" data-user-id="${user.uid1}" data-user2-id="${user.uid2}" data-name="${user.name}" data-photo="${user.photo}">${user.name}</div><div class="status"> <i class="fa fa-circle offline"></i> left 7 mins ago </div></div></li>`);
+                        });
+                     attachNameLinkListeners();
+                },
+                error: function(xhr, errmsg, err) {
+                    console.log(xhr.status + ": " + xhr.responseText);
+                }
+            });
+        }
+        setInterval(fetchusers, 2500);
         
-        // for adding user to the right pannel
-        document.addEventListener("DOMContentLoaded", function() {
-            // Event listener for name links
+        // for adding user header and set parameter to the right pannel
+        function attachNameLinkListeners() {
             var nameLinks = document.getElementsByClassName("name");
             for (var i = 0; i < nameLinks.length; i++) {
                 nameLinks[i].addEventListener("click", function() {
                     var name = this.getAttribute("data-name");
                     var photo = this.getAttribute("data-photo");
                     var user2Id = this.getAttribute("data-user2-id");
+                    var userId = this.getAttribute("data-user-id");
                     document.getElementById("username").textContent = name;
                     document.getElementById("username").setAttribute("reciever",user2Id)
+                    document.getElementById("username").setAttribute("sender",userId);
                     document.getElementById("userphoto").src = photo;
+                    fetchMessages();
                 });
             }
-        });
+        };
 
 
-        $(document).ready(function() {
+        // $(document).ready(function() {
             // Event listener for user links
-            $(".name").click(function(e) {
-                e.preventDefault();
-                var userId = $(this).data('user-id');
-                var user2Id = $(this).data('user2-id');
+            // $(".name").click(function(e) {
+                // e.preventDefault();
+
+            // For fetching messages periodically
+            function fetchMessages(){
+                var userId = document.getElementById("username").getAttribute('sender');
+                var user2Id = document.getElementById("username").getAttribute('reciever');
                 $.ajax({
                     url: "/get-messages/" + userId + "/" + user2Id + "/",
                     type: "GET",
@@ -392,10 +415,12 @@
                         console.log(xhr.status + ": " + xhr.responseText);
                     }
                 });
-            });
-        });
+            }
+        // });
+        // });
+        setInterval(fetchMessages, 2500);
 
-
+        // For send message 
         $(document).ready(function() {
             // Event listener for user links
             $(".input-group-text").click(function(e) {
@@ -420,7 +445,7 @@
                                 if(response.success){
                                     var divElements = document.querySelectorAll('.name');
                                     divElements.forEach(function(element) {
-                                        if (element.getAttribute("data-user2-id") == user2Id || element.getAttribute("data-user2-id") == userId) {
+                                        if (element.getAttribute("data-user2-id") == user2Id) {
                                             element.click();
                                         }
                                     });
@@ -432,6 +457,7 @@
                 });
             });
         });
+
 
         // Function to get CSRF token from cookie
         function getCookie(name) {
