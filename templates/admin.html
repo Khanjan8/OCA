@@ -1,10 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel</title>
 <style>
+    .feedback {
+            border: 1px solid #161515;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fdfafa;
+        }
+
+        .feedback h4 {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        .feedback p {
+            margin: 5px 0;
+        }
+
+        .feedback button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .feedback button:hover {
+            background-color: #45a049;
+        }
+
     /* Basic styling */
     body {
         background: linear-gradient(109.5deg, rgb(13, 11, 136) 9.4%, rgb(86, 255, 248) 78.4%);
@@ -61,10 +92,10 @@
     .feedback-container, .report-container {
         display: none;
         margin-top: 10px;
-        background-color: #ca1ac7;
+        background-color: #98c6d4;
         padding: 10px;
         border-radius: 4px;
-        border: 1px solid #ffffff;
+        border: 1px solid #0d0c0c;
         font-size: large;
     }
 
@@ -75,7 +106,7 @@
         background-color: #ffffff;
         padding: 10px;
         border-radius: 4px;
-        border: 1px solid #2631d4;
+        border: 1px solid #090909;
         font-size: large;
     }
 
@@ -109,35 +140,12 @@
     <h1>Admin Panel</h1>
 
     <!-- Button to display all feedback -->
-    <button id="feedback-btn" onclick="toggleFeedback()">See All Feedback</button>
+    <button id="feedback-btn" onclick="toggleFeedback()">All Feedbacks</button>
     <!-- Feedback container -->
     <div class="feedback-container">
         <!-- Feedbacks will be displayed here -->
     </div>
-
-    <!-- Button to display all reports -->
-    <button id="report-btn" onclick="toggleReports()">See All Reports</button>
-    <!-- Reports container -->
-    <div class="report-container">
-        <!-- Reports will be displayed here -->
-    </div>
-
-    <!-- Button to send message individually -->
-    <button id="send-individual-btn" onclick="toggleIndividualContainer()">Send Message Individually</button>
-    <!-- Individual message container -->
-    <div class="send-individual-container">
-        <select id="user-dropdown">
-            <option value="">Select User</option>
-            <option value="1">User 1</option>
-            <option value="2">User 2</option>
-            <option value="3">User 3</option>
-        </select>
-        <div class="message-field-container" style="display: none;">
-            <input type="text" class="message-field" placeholder="Type your message...">
-            <button class="send-button" onclick="sendMessageIndividual()">Send</button>
-        </div>
-    </div>
-
+    <br>
     <!-- Button to send message to all -->
     <button id="send-all-btn" onclick="toggleSendAllContainer()">Send Message to All</button>
     <!-- Send all container -->
@@ -148,7 +156,7 @@
 
     <!-- Container for reply message -->
     <div class="reply-container">
-        <input type="text" class="message-field" placeholder="Type your message...">
+        <input type="text" id="fdreply" class="message-field" placeholder="Type your Feedback reply Message...">
         <button class="send-icon" onclick="sendMessage()">Send</button>
     </div>
 
@@ -159,46 +167,16 @@
 
 <script>
     var selectedUserId; // To store the selected user ID for individual messaging
-
-    function toggleFeedback() {
-        var feedbackContainer = document.querySelector('.feedback-container');
-        feedbackContainer.style.display = (feedbackContainer.style.display === 'none') ? 'block' : 'none';
-    }
-
-    function toggleReports() {
-        var reportContainer = document.querySelector('.report-container');
-        reportContainer.style.display = (reportContainer.style.display === 'none') ? 'block' : 'none';
-    }
-
-    function toggleIndividualContainer() {
-        var individualContainer = document.querySelector('.send-individual-container');
-        individualContainer.style.display = (individualContainer.style.display === 'none') ? 'block' : 'none';
-    }
-
+    
     function toggleSendAllContainer() {
         var sendAllContainer = document.querySelector('.send-all-container');
         sendAllContainer.style.display = (sendAllContainer.style.display === 'none') ? 'block' : 'none';
     }
-
-    function sendMessageIndividual() {
-        var messageField = document.querySelector('.message-field');
-        var message = messageField.value.trim();
-        if (message !== "") {
-            // Send message to the selected user (You will implement this)
-            alert("Message sent to user " + selectedUserId + ": " + message);
-            // Clear message field
-            messageField.value = "";
-        } else {
-            alert("Please enter a message.");
-        }
-    }
-
     function sendMessageAll() {
         var messageField = document.querySelector('.message-field');
         var message = messageField.value.trim();
         if (message !== "") {
-            // Send message to all users (You will implement this)
-            alert("Message sent to all users: " + message);
+            sendtoall(message);
             // Clear message field
             messageField.value = "";
         } else {
@@ -206,62 +184,126 @@
         }
     }
 
-    // Function to handle user selection from the dropdown
-    document.getElementById('user-dropdown').addEventListener('change', function() {
-        selectedUserId = this.value;
-        var messageFieldContainer = document.querySelector('.message-field-container');
-        if (selectedUserId !== "") {
-            messageFieldContainer.style.display = 'block';
-        } else {
-            messageFieldContainer.style.display = 'none';
-        }
-    });
 
+// for feedback
+    function toggleFeedback() {
+        var feedbackContainer = document.querySelector('.feedback-container');
+        feedbackContainer.style.display = (feedbackContainer.style.display === 'none') ? 'block' : 'none';
+    }
     // Function to toggle reply container visibility
-    function toggleReplyContainer() {
+    function toggleReplyContainer(userid) {
         var replyContainer = document.querySelector('.reply-container');
         var isVisible = replyContainer.style.display === 'block';
         replyContainer.style.display = isVisible ? 'none' : 'block';
+        $('#fdreply').attr('user2id', userid);
     }
-
-    // Sample data for feedback and reports (you'll fetch these from your backend)
-    var feedbackData = [
-        { id: 1, message: "Sample feedback 1" },
-        { id: 2, message: "Sample feedback 2" },
-        // Add more feedback objects as needed
-    ];
-
-    var reportData = [
-        { id: 1, message: "Sample report 1" },
-        { id: 2, message: "Sample report 2" },
-        // Add more report objects as needed
-    ];
-
     // Function to display feedback
-    function displayFeedback() {
+    function fetchfeedbacks(){
         var feedbackContainer = document.querySelector('.feedback-container');
         feedbackContainer.innerHTML = ''; // Clear previous content
-        feedbackData.forEach(function(feedback) {
-            var div = document.createElement('div');
-            div.innerHTML = feedback.message + ' <button onclick="toggleReplyContainer()">Reply</button>'; // Add reply button
-            feedbackContainer.appendChild(div);
+        $.ajax({
+            url: "/get-feedbacks/",
+            type: "GET",
+            success: function(response) {
+                response.feedbacks.forEach(function(feedback) {
+                    $(".feedback-container").append(`
+                        <div class="feedback">
+                            <h4>From UID : ${feedback.uid} <br> Name : ${feedback.username}</h4>
+                            <p>${feedback.message}</p>
+                            <button class="reply-button" id="replybutton" onclick="toggleReplyContainer(${feedback.uid})">Reply</button>
+                        </div>
+                    `);
+                });
+            },
+            error: function(xhr, errmsg, err) {
+                console.log(xhr.status + ": " + xhr.responseText);
+            }
         });
     }
-
-    // Function to display reports
-    function displayReports() {
-        var reportContainer = document.querySelector('.report-container');
-        reportContainer.innerHTML = ''; // Clear previous content
-        reportData.forEach(function(report) {
-            var div = document.createElement('div');
-            div.innerHTML = report.message + ' <button onclick="toggleReplyContainer()">Reply</button>'; // Add reply button
-            reportContainer.appendChild(div);
-        });
-    }
-
     // Display initial feedback and reports
-    displayFeedback();
-    displayReports();
+    fetchfeedbacks();
+
+
+    // send feedback reply 
+    function sendMessage(){
+        var userid = $('#fdreply').attr('user2id');        
+        var csrfToken = getCookie('csrftoken');
+        var messageText = $('#fdreply').val();
+        document.getElementById("fdreply").value = "";
+
+        if(messageText.trim() !== ""){
+            $.ajax({
+                url: "/save-messages/save/",
+                type: "POST",
+                data:{
+                    'text':messageText,
+                    'sender': '{{ admin.uid1.uid}}',
+                    'reciever':userid
+                },
+                headers: {
+                    'X-CSRFToken': csrfToken // Include CSRF token in the request headers
+                },
+                success: function(response) {
+                            if(response.success){
+                                alert('Message sent Successfully')
+                            }
+                            else{
+                                alert('Error ! While responding to feedback')
+                            }
+                },
+                error: function(xhr, errmsg, err) {
+                    console.log(xhr.status + ": " + xhr.responseText);
+                }
+            });
+        }
+        else{
+            alert("Please enter a message.");
+        }
+    }
+
+    function sendtoall(message){
+        msg = message;
+        var csrfToken = getCookie('csrftoken');
+        $.ajax({
+            url: "/save-all-message/save/",
+            type: "POST",
+            data:{
+                'text':msg,
+                'sender': '{{ admin.uid1.uid}}',
+            },
+            headers: {
+                'X-CSRFToken': csrfToken // Include CSRF token in the request headers
+            },
+            success: function(response) {
+                        if(response.success){
+                            alert('Message sent to all Successfully')
+                        }
+                        else{
+                            alert('Error ! While Sending to all')
+                        }
+            },
+            error: function(xhr, errmsg, err) {
+                console.log(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    }
+
+    //csrf token
+    function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+        }
+    
 </script>
 
 </body>

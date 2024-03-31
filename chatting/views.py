@@ -4,9 +4,10 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from twilio.rest import Client
 from .forms import LoginForm,Adminlogin
-from .models import admin2,message,user
+from .models import admin2,message,user,feedback
 import random
 from django.db.models import Q
+    
 
 # 'ACd0f1a220b1e06eb087310439f2c0cd66'
 TWILIO_ACCOUNT_SID = 'ACbe29c08c22bcde0bb83d9132389edf27'
@@ -28,7 +29,7 @@ def login(request):
             if form.is_valid():
                 mobile_number = form.cleaned_data['mobile_number']
                 request.session['mobile_number'] = mobile_number     # Store mobile number in session
-                otp = "1234"               # send_otp(mobile_number)
+                otp = "1234"                  # send_otp(mobile_number)
                 request.session['otp'] = otp  # Store OTP in session
                 return redirect('verify_otp')
         else:
@@ -60,58 +61,51 @@ def send_otp(mobile_number):
 # For verify it
 def verify_otp(request):
     if request.method == 'POST':
-        otp_entered = request.POST.get('otp', '')
-        otp_sent = request.session.get('otp', '')
+        otp_entered = request.POST.get('otp')
+        otp_sent = request.session.get('otp')
         if otp_entered == otp_sent:
             return redirect('set_profile_users')
         else:
             messages.error(request, "Invalid OTP. Please try again.")
-    mobile_number = request.session.get('mobile_number', '')
+    mobile_number = request.session.get('mobile_number')
     return render(request, 'login.html',{'mobile_number': mobile_number})
 
 
 def set_profile_users(request):
-    mobile_number = request.session.get('mobile_number', '')
+    mobile_number = request.session.get('mobile_number')
     obj_exists = user.objects.filter(phoneno=mobile_number).exists()
 
     if obj_exists :
         profile = get_object_or_404(user,phoneno=mobile_number)
     else :
-        profile = user()
-        profile.phoneno = mobile_number
+        profile = user(phoneno = mobile_number)
         profile.save()
-
-    # msg1 = message.objects.filter(uid1=profile.uid)
-    # msg2 = message.objects.filter(uid2=profile.uid)
-    # userlist = []
-
-    # for raw in msg1 :
-    #     if not any(u.uid==raw.uid2.uid for u in userlist):
-    #         u = user.objects.filter(uid=raw.uid2.uid).first()
-    #         userlist.append(u)
-
-    # for raw in msg2 :
-    #     if not any(u.uid==raw.uid1.uid for u in userlist):
-    #         u = user.objects.filter(uid=raw.uid1.uid).first()
-    #         userlist.append(u)
-
+    
+    profile = user.objects.get(phoneno=mobile_number)
     return render(request,'interface.html',{'profile' : profile })
-    # return render(request,'interface.html',{'profile' : profile , 'userlist' : userlist})
+
 
 # For verify admin
 def verify_admin(request):
     all_rows = admin2.objects.all()
-    uname = request.session.get('username','')
-    psw = request.session.get('password', '')
+    uname = request.session.get('username')
+    psw = request.session.get('password')
 
     for row in all_rows:
         if row.username == uname and row.password == psw :
-            return render(request,'admin.html')
+            return redirect(set_admin)
         else:
             messages.error(request,"Invalid Username Or Password. Please try again.")
 
     return render(request, 'login.html',{'username': uname,'password': psw})
 
+def set_admin(request):
+    unm = request.session.get('username')
+    psw = request.session.get('password')
+
+    admin = admin2.objects.get(username=unm,password=psw)
+
+    return render(request,'admin.html',{'admin':admin})
 
 # For logout activities
 def logout_view(request):
@@ -124,6 +118,7 @@ def get_messages(request, user_id , user2_id):
     messages = message.objects.filter(    # Fetch messages associated with the user
         (Q(uid1=user_id) & Q(uid2=user2_id)) | (Q(uid2=user_id) & Q(uid1=user2_id))
      ).order_by('pk')
+    
     message_list = [{'content': message.message} for message in messages]
     return JsonResponse({'messages': message_list})
 
@@ -138,6 +133,7 @@ def save_messages(request):
     obj2 = user.objects.filter(pk=user2_id).first()
     
     msg = message.objects.create(uid1=obj1,uid2=obj2,message=message_text)
+
     return JsonResponse({'success': True})
 
 
@@ -147,6 +143,7 @@ def get_users(request):
     msg1 = message.objects.filter(uid1=user_id)
     msg2 = message.objects.filter(uid2=user_id)
     userlist = []
+
     for raw in msg1 :
         if not any(u.uid==raw.uid2.uid for u in userlist):
             u = user.objects.filter(uid=raw.uid2.uid).first()
@@ -157,20 +154,90 @@ def get_users(request):
             u = user.objects.filter(uid=raw.uid1.uid).first()
             userlist.append(u)
 
-    user_list = [{'uid1': user_id,'uid2': user.uid,'name': user.uname,'photo': user.pphoto.url} for user in userlist]
+    user_list = [{'uid1': user_id,'uid2': user.uid,'name': user.uname,'photo': user.pphoto.url,'about':user.about} for user in userlist]
     return JsonResponse({'users': user_list})
 
     
 # for search user
 def search_user(request):
     name = request.POST.get('uname')
+    uid1 = request.POST.get('uid')
+    u = user.objects.get(pk=uid1)
     list_json = request.POST.get('userlist')
     list = json.loads(list_json)
     users = user.objects.filter(uname=name).exclude(uid__in=list)
-
     users_data = []
-    if users.exists() :
-        users_data = [{'uid2':user.uid, 'photo':user.pphoto.url , 'name': user.uname} for user in users]
+    if users.exists() and u.uname != name:
+        users_data = [{'uid1':uid1,'uid2':user.uid, 'photo':user.pphoto.url , 'name': user.uname, 'about':user.about} for user in users]
     else :
         users_data = [{'validity':False}]
     return JsonResponse({'users': users_data})
+
+
+# for profile page
+def profile_view(request):
+    profile_id = request.GET.get('profile_id')
+    profile = user.objects.get(pk=profile_id)
+    return render(request,'profile.html',{'profile':profile})
+
+# for profile updation
+def update_profile(request):
+    uid = request.POST.get('userid')
+    nm = request.POST.get('name')
+    about = request.POST.get('about')
+    photo = request.FILES.get('photo')
+
+    uid=int(uid)
+    profile = user.objects.get(pk=uid)
+    profile.uname = nm
+    profile.about = about
+    if photo :
+        profile.pphoto = photo
+    profile.save()
+
+    return redirect(set_profile_users)
+
+# delete account
+def delete_account(request):
+    profile_id = int(request.GET.get('profile_id'))
+    u = user.objects.get(pk=profile_id)
+    u.delete()
+    return redirect(login)
+
+# save feedback
+def save_feedback(request):
+    text = request.POST.get('text')
+    sender = int(request.POST.get('sender'))
+
+    obj = user.objects.filter(pk=sender).first()
+
+    fback = feedback.objects.create(uid1=obj,feedbackmsg=text)
+
+    return JsonResponse({'success': True})
+
+# get feedbacks
+def get_feedbacks(request):
+    all_objs = feedback.objects.all()
+
+    feedbacks = [{'message':feedback.feedbackmsg,'username':feedback.uid1.uname,'uid':feedback.uid1.uid} for feedback in all_objs]
+    return JsonResponse({'feedbacks': feedbacks})
+
+# save all messages
+def save_all_message(request):
+    adminid = request.POST.get('sender')
+    msg = request.POST.get('text')
+    
+    users = user.objects.exclude(uid=adminid)
+
+    admin = user.objects.filter(pk=adminid).first()
+
+    for u in users :
+        message.objects.create(uid1=admin,uid2=u,message=msg)
+
+    return JsonResponse({'success': True})
+
+    
+
+
+
+    

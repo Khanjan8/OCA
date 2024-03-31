@@ -284,19 +284,19 @@
             <div class="col-lg-12">
                 <div class="card chat-app">
                     <div id="plist" class="people-list">
-                        <i class="fa fa-circle online"></i>
                         <!-- Search pannel -->
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span id="search" class="input-group-text"><i class="fa fa-search"></i></span>
                             </div>
-                            <input type="text" id="searchname" class="form-control" placeholder="Search...">
+                            <input type="text" id="searchname" class="form-control" placeholder="Add Users...">
                         </div>
 
                         <!-- Old/New Conversation -->
                         <ul class="list-unstyled chat-list mt-2 mb-0" id="allusers" data-user-id="{{ profile.uid }}">
 
                         </ul>
+
                     </div>
 
                     <div class="chat">
@@ -309,13 +309,12 @@
                                         <img id="userphoto" src="" alt="">
                                     </a>
                                     <div class="chat-about">
-                                        <h6 id="username" class="m-b-0">Default Name</h6>
+                                        <h5 id="username" class="m-b-0">Default Name</h5>
+                                        <div class="status" id="about" style="font-size: 15px;"></i>About</div>
                                     </div>
                                 </div>
                                 <div class="col-lg-6 hidden-sm text-right">
-                                    <a href="javascript:void(0);" class="btn btn-outline-secondary"><i class="fa fa-camera"></i></a>
-                                    <a href="javascript:void(0);" class="btn btn-outline-primary"><i class="fa fa-image"></i></a>
-                                    <a href="javascript:void(0);" class="btn btn-outline-info"><i class="fa fa-cogs"></i></a>
+                                    <a href="#" id="profilelink" class="btn btn-outline-info"><i class="fa fa-cogs"></i></a>
                                     <a href="{% url 'logout' %}" class="btn btn-outline-info">Log-Out</a>
 
                                 </div>
@@ -332,7 +331,7 @@
                         <div class="chat-message clearfix">
                             <div class="input-group mb-0">
                                 <div class="input-group-prepend">
-                                    <span name="submit_msg" id="submit_msg" class="input-group-text" data-user-id="{{ profile.uid }}"><i class="fa fa-send"></i></span>
+                                    <span name="submit_msg" id="submit_msg" class="input-group-text" data-user-id="{{ profile.uid }}"><i class="fa fa-send" ></i></span>
                                 </div>
                                 <input type="text" id="msg" name="msg" class="form-control" placeholder="Enter text here...">                                    
                             </div>
@@ -347,7 +346,7 @@
     <script>
         var intervalId;
 
-        // for adding left old/new conversation set up
+        // for adding left panel old/new conversation set up
         function fetchusers(){
             var userId = document.getElementById("allusers").getAttribute('data-user-id');
             var csrfToken = getCookie('csrftoken');
@@ -363,7 +362,7 @@
                 success: function(response) {
                     $("#allusers").empty(); // Clear previous messages
                         response.users.forEach(function(user) {
-                            $("#allusers").append(<li class="clearfix"><img src="${user.photo}" alt=""><div class="about"><div class="name" data-user-id="${user.uid1}" data-user2-id="${user.uid2}" data-name="${user.name}" data-photo="${user.photo}">${user.name}</div><div class="status"> <i class="fa fa-circle offline"></i> left 7 mins ago </div></div></li>);
+                                $("#allusers").append(`<li class="clearfix"><img src="${user.photo}" alt=""><div class="about"><div class="name" data-user-id="${user.uid1}" data-user2-id="${user.uid2}" data-name="${user.name}" data-photo="${user.photo}" data-about="${user.about}" style="font-size: large;">${user.name}</div><div class="status"> <i class="fa fa-circle online"></i>${user.about}</div></div></li>`);
                         });
                      attachNameLinkListeners();
                 },
@@ -386,6 +385,7 @@
                 document.getElementById("searchname").value = "";
                 var elements = document.querySelectorAll('.name'); // Select elements with the specified class
                 var attributesList = [];
+                var userId = document.getElementById("allusers").getAttribute('data-user-id');
 
                 elements.forEach(function(element) {
                     var attributes = element.attributes; // Get attributes of the element
@@ -395,22 +395,25 @@
                         }
                     }
                 }),
+
                 $.ajax({
                     url: "/search-user/",
                     type: "POST",
                     data:{
                         'uname': name,
-                        'userlist' : JSON.stringify(attributesList)
+                        'userlist' : JSON.stringify(attributesList),
+                        'uid' : userId
                     },
                     headers: {
                         'X-CSRFToken': csrfToken // Include CSRF token in the request headers
                     },
                     success: function(response) {
-                        if (!response.users[0].hasOwnProperty("validity")){
+                        if (!response.users[0].hasOwnProperty("validity") && name != "Admin"){
                             var uid1 = document.getElementById("allusers").getAttribute("data-user-id");
                             response.users.forEach(function(user) {
                                 stopInterval();
-                                $("#allusers").append(<li class="clearfix"><img src="${user.photo}" alt="avatar"><div class="about"><div class="name" data-user-id="${uid1}" data-user2-id="${user.uid2}" data-name="${user.name}" data-photo="${user.photo}">${user.name}</div><div class="status"> <i class="fa fa-circle offline"></i> left 7 mins ago </div></div></li>);
+                                console.log(user.name);
+                                $("#allusers").append(`<li class="clearfix"><img src="${user.photo}" alt=""><div class="about"><div class="name" data-user-id="${user.uid1}" data-user2-id="${user.uid2}" data-name="${user.name}" data-photo="${user.photo}" data-about="${user.about}" style="font-size: large;">${user.name}</div><div class="status"> <i class="fa fa-circle online"></i>${user.about}</div></div></li>`);
                             });
                             attachNameLinkListeners();
                         }
@@ -434,12 +437,21 @@
                     var name = this.getAttribute("data-name");
                     var photo = this.getAttribute("data-photo");
                     var user2Id = this.getAttribute("data-user2-id");
+
+                    if(user2Id == 1)
+                        document.getElementById('msg').disabled = true;
+                    else
+                        document.getElementById('msg').disabled = false;
+
+
                     var userId = this.getAttribute("data-user-id");
+                    var about = this.getAttribute("data-about");
                     document.getElementById("username").textContent = name;
+                    document.getElementById("about").textContent = about;
                     document.getElementById("username").setAttribute("reciever",user2Id)
                     document.getElementById("username").setAttribute("sender",userId);
                     document.getElementById("userphoto").src = photo;
-                    fetchMessages();
+                    setInterval(fetchMessages, 2500);       
                 });
             }
         };
@@ -462,8 +474,6 @@
                 }
             });
         }
-        if(document.getElementById("username").textContent.trim() !== "Default Name"){  setInterval(fetchMessages, 2500); }
-       
 
         // For send message 
         $(document).ready(function() {
@@ -519,6 +529,15 @@
                 }
                 return cookieValue;
         }
+    
+        // for redirect to profile page
+        document.getElementById("profilelink").addEventListener("click",function(event){
+            event.preventDefault();
+            var profileId = "{{ profile.uid }}"; 
+            var newUrl = "{% url 'profile' %}?profile_id=" + encodeURIComponent(profileId);
+            window.location.href = newUrl;
+        });
+
     </script>
 </body>
 </html>

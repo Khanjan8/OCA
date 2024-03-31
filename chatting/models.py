@@ -5,7 +5,7 @@ from django.contrib.auth.hashers import make_password
 class user(models.Model):
     uid = models.IntegerField(primary_key = True,auto_created = True)
     uname = models.CharField(max_length=30,default="Default")
-    about = models.CharField(max_length=30,default="available")
+    about = models.CharField(max_length=30,default="Available")
     pphoto = models.ImageField(default='defaultprofile.jpg')
     phoneno = models.CharField(max_length=13)
 
@@ -13,7 +13,6 @@ class user(models.Model):
 class message(models.Model):
     uid1 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="message_sender")
     uid2 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="message_reciever")
-    is_read = models.BooleanField(default=False)
     message = models.TextField()
 
 class images(models.Model):
@@ -49,6 +48,7 @@ class feedback(models.Model):
 
 
 class admin2(models.Model):
+    uid1 = models.ForeignKey(user,default=1,on_delete=models.CASCADE,related_name="admin")
     username = models.CharField(max_length=30)
     password = models.CharField(max_length=30)
 
