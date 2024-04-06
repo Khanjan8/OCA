@@ -9,11 +9,8 @@ import random
 from django.db.models import Q
     
 
-# 'ACd0f1a220b1e06eb087310439f2c0cd66'
 TWILIO_ACCOUNT_SID = 'ACbe29c08c22bcde0bb83d9132389edf27'
-# '97549da49e73a886fba0b4734f1c68be'
-TWILIO_AUTH_TOKEN = '5cc2fa9ffdd99d9c015c2e79f952064f'
-# '+18587790145'
+TWILIO_AUTH_TOKEN = '3c256500e95f556fd668bc9ef7ad85e0'
 TWILIO_PHONE_NUMBER = '+14199494749'
 
 # For Twilio Configuration
@@ -29,7 +26,7 @@ def login(request):
             if form.is_valid():
                 mobile_number = form.cleaned_data['mobile_number']
                 request.session['mobile_number'] = mobile_number     # Store mobile number in session
-                otp = "1234"                  # send_otp(mobile_number)
+                otp = "1234"   # send_otp(mobile_number)
                 request.session['otp'] = otp  # Store OTP in session
                 return redirect('verify_otp')
         else:
@@ -70,7 +67,7 @@ def verify_otp(request):
     mobile_number = request.session.get('mobile_number')
     return render(request, 'login.html',{'mobile_number': mobile_number})
 
-
+# For Profile set up
 def set_profile_users(request):
     mobile_number = request.session.get('mobile_number')
     obj_exists = user.objects.filter(phoneno=mobile_number).exists()
@@ -99,6 +96,7 @@ def verify_admin(request):
 
     return render(request, 'login.html',{'username': uname,'password': psw})
 
+# Admin setup
 def set_admin(request):
     unm = request.session.get('username')
     psw = request.session.get('password')
@@ -119,7 +117,11 @@ def get_messages(request, user_id , user2_id):
         (Q(uid1=user_id) & Q(uid2=user2_id)) | (Q(uid2=user_id) & Q(uid1=user2_id))
      ).order_by('pk')
     
-    message_list = [{'content': message.message} for message in messages]
+    u = user.objects.get(pk=user_id)
+
+    message_list = [{'content': message.message ,
+                     'align' : 'left' if message.uid1==u else 'right'
+                     } for message in messages]
     return JsonResponse({'messages': message_list})
 
 
@@ -180,6 +182,7 @@ def profile_view(request):
     profile = user.objects.get(pk=profile_id)
     return render(request,'profile.html',{'profile':profile})
 
+
 # for profile updation
 def update_profile(request):
     uid = request.POST.get('userid')
@@ -204,6 +207,7 @@ def delete_account(request):
     u.delete()
     return redirect(login)
 
+
 # save feedback
 def save_feedback(request):
     text = request.POST.get('text')
@@ -215,12 +219,14 @@ def save_feedback(request):
 
     return JsonResponse({'success': True})
 
+
 # get feedbacks
 def get_feedbacks(request):
     all_objs = feedback.objects.all()
 
     feedbacks = [{'message':feedback.feedbackmsg,'username':feedback.uid1.uname,'uid':feedback.uid1.uid} for feedback in all_objs]
     return JsonResponse({'feedbacks': feedbacks})
+
 
 # save all messages
 def save_all_message(request):

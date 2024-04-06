@@ -1,8 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
         <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'web.png' %}">
 
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
@@ -31,6 +34,7 @@
         <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-9">
           <h2 class="text-primary">Edit Profile</h2>
         </div>
+
         <!-- Submit buttons -->
         <div class="row gutters submit-buttons">
           <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-3">
@@ -107,12 +111,12 @@
     <hr>
 
     <script>
-      // for cancel button
+      // for back button
       document.getElementById('submit').addEventListener("click",function(){
           window.location.href = "{% url 'set_profile_users' %}"; 
       });
 
-      // For profile photo change
+    // For profile photo change
       document.getElementById('photo-input').addEventListener('change', function(event) {
           const file = event.target.files[0];
           const reader = new FileReader();
@@ -124,7 +128,7 @@
           reader.readAsDataURL(file);
       });
 
-      // for delete account
+    // for delete account
       document.getElementById('deleteaccount').addEventListener('click', function(event) {
           event.preventDefault();
 
@@ -138,6 +142,7 @@
           }
       });
       
+    // send feedback
       document.getElementById('send-feedback').addEventListener("click",function(e){
          text = document.getElementById("feedback").value;
          userId = "{{ profile.uid }}";
@@ -167,7 +172,7 @@
          }
       })
 
-      // Function to get CSRF token from cookie
+    // Function to get CSRF token from cookie
       function getCookie(name) {
                 var cookieValue = null;
                 if (document.cookie && document.cookie !== '') {

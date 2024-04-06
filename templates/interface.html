@@ -1,7 +1,9 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'web.png' %}">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
         <!-- CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
@@ -345,7 +347,7 @@
 
     <script>
         var intervalId;
-
+        
         // for adding left panel old/new conversation set up
         function fetchusers(){
             var userId = document.getElementById("allusers").getAttribute('data-user-id');
@@ -376,7 +378,7 @@
         function stopInterval() {clearInterval(intervalId);}
         startInterval();
 
-        // for searching and adding into list 
+    // for searching and adding into list 
         function searchuser(){
                 var searchicon = document.getElementById("search");
                 searchicon.addEventListener("click",function(){
@@ -429,7 +431,7 @@
         }
         searchuser();
    
-        // for adding user header and set parameter to the right pannel
+    // for adding user header and set parameter to the right pannel
         function attachNameLinkListeners() {
             var nameLinks = document.getElementsByClassName("name");
             for (var i = 0; i < nameLinks.length; i++) {
@@ -456,7 +458,7 @@
             }
         };
 
-        // For fetching messages periodically
+    // For fetching messages periodically
         function fetchMessages(){
             var userId = document.getElementById("username").getAttribute('sender');
             var user2Id = document.getElementById("username").getAttribute('reciever');
@@ -466,7 +468,8 @@
                 success: function(response) {
                     $("#messageList").empty(); // Clear previous messages
                     response.messages.forEach(function(message) {
-                        $("#messageList").append('<li class="clearfix"><div class="message my-message">' + message.content + '</div></li>');
+                        mclass = message.align == 'left' ? 'message my-message' : 'message other-message float-right' 
+                        $("#messageList").append('<li class="clearfix"><div class="'+ mclass + '">' + message.content + '</div></li>'); 
                     });
                 },
                 error: function(xhr, errmsg, err) {
@@ -475,7 +478,7 @@
             });
         }
 
-        // For send message 
+    // For send message 
         $(document).ready(function() {
             // Event listener for user links
             $("#submit_msg").click(function(e) {
@@ -514,7 +517,7 @@
             });
         });
 
-        // Function to get CSRF token from cookie
+    // Function to get CSRF token from cookie
         function getCookie(name) {
                 var cookieValue = null;
                 if (document.cookie && document.cookie !== '') {
@@ -530,7 +533,7 @@
                 return cookieValue;
         }
     
-        // for redirect to profile page
+    // for redirect to profile page
         document.getElementById("profilelink").addEventListener("click",function(event){
             event.preventDefault();
             var profileId = "{{ profile.uid }}"; 

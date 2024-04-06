@@ -1,10 +1,14 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+ <link rel="icon" type="image/png" sizes="32x32" href="{% static 'web.png' %}">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel</title>
+
 <style>
     .feedback {
             border: 1px solid #161515;
@@ -145,6 +149,7 @@
     <div class="feedback-container">
         <!-- Feedbacks will be displayed here -->
     </div>
+
     <br>
     <!-- Button to send message to all -->
     <button id="send-all-btn" onclick="toggleSendAllContainer()">Send Message to All</button>
@@ -168,6 +173,7 @@
 <script>
     var selectedUserId; // To store the selected user ID for individual messaging
     
+// For send to all feature
     function toggleSendAllContainer() {
         var sendAllContainer = document.querySelector('.send-all-container');
         sendAllContainer.style.display = (sendAllContainer.style.display === 'none') ? 'block' : 'none';
@@ -182,6 +188,32 @@
         } else {
             alert("Please enter a message.");
         }
+    }
+    function sendtoall(message){
+        msg = message;
+        var csrfToken = getCookie('csrftoken');
+        $.ajax({
+            url: "/save-all-message/save/",
+            type: "POST",
+            data:{
+                'text':msg,
+                'sender': '{{ admin.uid1.uid}}',
+            },
+            headers: {
+                'X-CSRFToken': csrfToken // Include CSRF token in the request headers
+            },
+            success: function(response) {
+                        if(response.success){
+                            alert('Message sent to all Successfully')
+                        }
+                        else{
+                            alert('Error ! While Sending to all')
+                        }
+            },
+            error: function(xhr, errmsg, err) {
+                console.log(xhr.status + ": " + xhr.responseText);
+            }
+        });
     }
 
 
@@ -224,7 +256,7 @@
     fetchfeedbacks();
 
 
-    // send feedback reply 
+// send feedback reply 
     function sendMessage(){
         var userid = $('#fdreply').attr('user2id');        
         var csrfToken = getCookie('csrftoken');
@@ -259,33 +291,6 @@
         else{
             alert("Please enter a message.");
         }
-    }
-
-    function sendtoall(message){
-        msg = message;
-        var csrfToken = getCookie('csrftoken');
-        $.ajax({
-            url: "/save-all-message/save/",
-            type: "POST",
-            data:{
-                'text':msg,
-                'sender': '{{ admin.uid1.uid}}',
-            },
-            headers: {
-                'X-CSRFToken': csrfToken // Include CSRF token in the request headers
-            },
-            success: function(response) {
-                        if(response.success){
-                            alert('Message sent to all Successfully')
-                        }
-                        else{
-                            alert('Error ! While Sending to all')
-                        }
-            },
-            error: function(xhr, errmsg, err) {
-                console.log(xhr.status + ": " + xhr.responseText);
-            }
-        });
     }
 
     //csrf token

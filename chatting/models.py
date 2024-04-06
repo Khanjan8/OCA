@@ -15,32 +15,6 @@ class message(models.Model):
     uid2 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="message_reciever")
     message = models.TextField()
 
-class images(models.Model):
-    uid1 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="image_sender")
-    uid2 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="image_reciever")
-    image = models.BinaryField()
-
-
-class report(models.Model):
-    uid1 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="report_sender")
-    uid2 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="reprot_reciver")
-    reportmsg = models.TextField()
-
-
-class request(models.Model):
-    uid1 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="req_sender")
-    uid2 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="req_reciever")
-
-
-class pin(models.Model):
-    uid1 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="pin_sender")
-    uid2 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="pin_reciver")
-
-
-class block(models.Model):
-    uid1 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="block_sender")
-    uid2 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="block_reciver")
-
 
 class feedback(models.Model):
     uid1 = models.ForeignKey(user, on_delete=models.CASCADE,related_name="sender")
