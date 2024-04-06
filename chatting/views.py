@@ -26,7 +26,7 @@ def login(request):
             if form.is_valid():
                 mobile_number = form.cleaned_data['mobile_number']
                 request.session['mobile_number'] = mobile_number     # Store mobile number in session
-                otp = "1234"   # send_otp(mobile_number)
+                otp = send_otp(mobile_number)
                 request.session['otp'] = otp  # Store OTP in session
                 return redirect('verify_otp')
         else:
