@@ -10,7 +10,7 @@ from django.db.models import Q
     
 
 TWILIO_ACCOUNT_SID = 'ACbe29c08c22bcde0bb83d9132389edf27'
-TWILIO_AUTH_TOKEN = '3c256500e95f556fd668bc9ef7ad85e0'
+TWILIO_AUTH_TOKEN = '6b71cec69bf5e73e7f6f722677a8cd73'
 TWILIO_PHONE_NUMBER = '+14199494749'
 
 # For Twilio Configuration
