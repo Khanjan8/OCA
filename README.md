@@ -2,9 +2,9 @@
 
 OCA (Online Chatting Application) is a web-based chat application built using Django, HTML, CSS, and JavaScript (with AJAX). It enables users to communicate in real-time through a user-friendly interface, including features such as OTP authentication, user registration, chat functionality, and admin management.
 
-## Live Demo
+## Constraint
 
-Check out the live deployment of OCA at [https://divyang.pythonanywhere.com/](https://divyang.pythonanywhere.com/).
+It uses Twilio for OTP authentication. So that you have to register mobile number in twilio And need to change TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER in views.py
 
 ## Features
 
