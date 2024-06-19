@@ -1,4 +1,5 @@
 import json
+
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
@@ -7,7 +8,7 @@ from .forms import LoginForm,Adminlogin
 from .models import admin2,message,user,feedback
 import random
 from django.db.models import Q
-    
+
 
 TWILIO_ACCOUNT_SID = 'ACbe29c08c22bcde0bb83d9132389edf27'
 TWILIO_AUTH_TOKEN = '6b71cec69bf5e73e7f6f722677a8cd73'
@@ -49,7 +50,7 @@ def login(request):
 def send_otp(mobile_number):
     otp = str(random.randint(100000, 999999))
     message = client.messages.create(
-        body=f'Dear User, Please use the following One Time Password (OTP): {otp}. Do not share this OTP with anyone',
+        body=f'Dear User, Please use the following One Time Password (OTP): {otp}. Do not share this OTP with anyone (From OCA)',
         from_=TWILIO_PHONE_NUMBER,
         to=mobile_number
     )
@@ -60,7 +61,9 @@ def verify_otp(request):
     if request.method == 'POST':
         otp_entered = request.POST.get('otp')
         otp_sent = request.session.get('otp')
+
         if otp_entered == otp_sent:
+            request.session.pop('otp', None)
             return redirect('set_profile_users')
         else:
             messages.error(request, "Invalid OTP. Please try again.")

@@ -135,3 +135,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'images')
 
 # For hosting
 ALLOWED_HOSTS = ['*']
+
+
+

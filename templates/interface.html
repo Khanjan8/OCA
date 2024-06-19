@@ -5,14 +5,8 @@
 <head>
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'web.png' %}">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
-        <!-- CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- JavaScript (Optional: if you are using Bootstrap JS features)
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script> -->
-
-    <!-- jQuery (Optional: required for Bootstrap JS features)
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         #messages{
@@ -186,12 +180,12 @@
         }
 
         .chat .chat-history .other-message {
-            background: #e8f1f3;
+            background: #efefef;
             text-align: right
         }
 
         .chat .chat-history .other-message:after {
-            border-bottom-color: #e8f1f3;
+            border-bottom-color: #efefef;
             left: 93%
         }
 
@@ -291,7 +285,7 @@
                             <div class="input-group-prepend">
                                 <span id="search" class="input-group-text"><i class="fa fa-search"></i></span>
                             </div>
-                            <input type="text" id="searchname" class="form-control" placeholder="Add Users...">
+                            <input type="text" id="searchname" class="form-control" placeholder="Add Users">
                         </div>
 
                         <!-- Old/New Conversation -->
@@ -382,21 +376,21 @@
         function searchuser(){
                 var searchicon = document.getElementById("search");
                 searchicon.addEventListener("click",function(){
-                var name = $('#searchname').val();
-                var csrfToken = getCookie('csrftoken');
-                document.getElementById("searchname").value = "";
-                var elements = document.querySelectorAll('.name'); // Select elements with the specified class
-                var attributesList = [];
-                var userId = document.getElementById("allusers").getAttribute('data-user-id');
+                    var name = $('#searchname').val();
+                    var csrfToken = getCookie('csrftoken');
+                    document.getElementById("searchname").value = "";
+                    var elements = document.querySelectorAll('.name'); // Select elements with the specified class
+                    var attributesList = [];
+                    var userId = document.getElementById("allusers").getAttribute('data-user-id');
 
-                elements.forEach(function(element) {
-                    var attributes = element.attributes; // Get attributes of the element
-                    for (var i = 0; i < attributes.length; i++) {
-                        if (attributes[i].name == "data-user2-id") {
-                            attributesList.push(element.getAttribute("data-user2-id"));
+                    elements.forEach(function(element) {
+                        var attributes = element.attributes; // Get attributes of the element
+                        for (var i = 0; i < attributes.length; i++) {
+                            if (attributes[i].name == "data-user2-id") {
+                                attributesList.push(element.getAttribute("data-user2-id"));
+                            }
                         }
-                    }
-                }),
+                    }),
 
                 $.ajax({
                     url: "/search-user/",
@@ -440,8 +434,10 @@
                     var photo = this.getAttribute("data-photo");
                     var user2Id = this.getAttribute("data-user2-id");
 
-                    if(user2Id == 1)
+                    if(user2Id == 1){
                         document.getElementById('msg').disabled = true;
+                        document.getElementById('msg').placeholder = "Only ChatMe can send messages"
+                    }
                     else
                         document.getElementById('msg').disabled = false;
 

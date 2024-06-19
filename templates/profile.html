@@ -21,7 +21,13 @@
             text-align: center; /* Adjust this value as needed */
         }
         .hide-text{
-          color : transparent;
+            color : transparent;
+        }
+        .deletelink{
+            font-size: 17px;
+        }
+        .deletelink:hover{
+            color: red
         }
     </style>
 </head>
@@ -62,7 +68,7 @@
           <!-- Delete account pannel -->
           <div class="col-md-9 personal-info">
             <div class="alert alert-info alert-dismissable">
-              <a href="" style="font-size: 17px;" id="deleteaccount">Delete Account</a>
+              <a href="#" class="deletelink" id="deleteaccount">Delete Account</a>
             </div>
             
 
@@ -163,6 +169,7 @@
                     success: function(response) {
                                 if(response.success){
                                     alert("Thank you for your valuable feedback!")
+                                    document.getElementById("feedback").value = ""
                                 }
                     },
                     error: function(xhr, errmsg, err) {

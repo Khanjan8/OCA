@@ -53,13 +53,21 @@
     }
 
     .container {
-        width: 700px;
+        width: 500px;
         padding: 30px;
         background-color: #ffffff;
         border-radius: 15px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         font-size: large;
     }
+
+    .title {
+        display: block;
+        text-align: center;
+        width: 100%;
+        font-size: 2em; /* Adjust as needed */
+        margin-bottom: 20px; /* Space below the title */
+    }    
 
     h1 {
         color: #333;
@@ -115,7 +123,7 @@
     }
 
     .message-field {
-        width: calc(100% - 90px);
+        width: calc(100%);
         padding: 8px;
         box-sizing: border-box;
         border: 1px solid #ddd;
@@ -133,18 +141,22 @@
     .logout{
         color: rgb(1, 0, 0);
         font-size: large;
-        font-family: Arial, Helvetica, sans-serif;
-        margin-left: 320px;
+        display: block;
+        text-align: center;
+        width: 100%;
+    }
+    .logout:hover {
+        color: red;
     }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Admin Panel</h1>
+    <h1 class="title">Admin Panel</h1>
 
     <!-- Button to display all feedback -->
-    <button id="feedback-btn" onclick="toggleFeedback()">All Feedbacks</button>
+    <button id="feedback-btn" onclick="toggleFeedback()">Feedbacks</button>
     <!-- Feedback container -->
     <div class="feedback-container">
         <!-- Feedbacks will be displayed here -->
@@ -152,7 +164,7 @@
 
     <br>
     <!-- Button to send message to all -->
-    <button id="send-all-btn" onclick="toggleSendAllContainer()">Send Message to All</button>
+    <button id="send-all-btn" onclick="toggleSendAllContainer()">Announcement</button>
     <!-- Send all container -->
     <div class="send-all-container">
         <input type="text" class="message-field" placeholder="Type your message...">
